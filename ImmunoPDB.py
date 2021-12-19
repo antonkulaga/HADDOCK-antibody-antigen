@@ -76,7 +76,6 @@ from anarci import anarci, scheme_names, scheme_short_to_long
 # Biopython 
 from Bio.PDB import *
 from Bio.File import as_handle
-from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Data.SCOPData import protein_letters_3to1
@@ -172,7 +171,7 @@ class PDBNumber(object):
         if di and check_continuity:
             continuous, at = analyse_continuity( chain )
             if not continuous:
-                print 'Warning: Numbering may be incorrect as a missing residue was detected in chain %s (around residue %d%s). Provide the seqres record to overcome this problem.'%(chain.id, chain.child_list[at].id[1], chain.child_list[at].id[2] )
+                print('Warning: Numbering may be incorrect as a missing residue was detected in chain %s (around residue %d%s). Provide the seqres record to overcome this problem.'%(chain.id, chain.child_list[at].id[1], chain.child_list[at].id[2] ))
             
         chain.xtra['scheme'] = self.scheme
 
@@ -189,7 +188,7 @@ class PDBNumber(object):
             regions = annotate_regions(numbering, domain_type, numbering_scheme=scheme,definition=definition)
         except AssertionError: # Unimplemented
             return
-        for i in xrange(len(numbering)):
+        for i in range(len(numbering)):
             if not chain.child_list[i].xtra.get('region'): # Update the region.
                 chain.child_list[i].xtra['region'] = regions[i][2]
 
@@ -203,9 +202,9 @@ class PDBNumber(object):
             return 
         numbered, details = results[0][0], results[1][0]
         if numbered is None: numbered = []
-        for i in xrange( len( numbered ) ): # Iterate over the identified domains (e.g. for an scfv)
+        for i in range( len( numbered ) ): # Iterate over the identified domains (e.g. for an scfv)
             numbering = [ (n, a) for n, a in numbered[i][0] if a != '-' ] # Remove gaps if made (imgt scheme)
-            yield [ (numbering[ri][0], ri+numbered[i][1]) for ri in xrange( len( numbering ) ) ], details[i]['chain_type'], details[i]
+            yield [ (numbering[ri][0], ri+numbered[i][1]) for ri in range( len( numbering ) ) ], details[i]['chain_type'], details[i]
 
 # Extension of the Biopython PDBParser. 
 class AntigenReceptorPDBParser(PDBParser):
@@ -314,7 +313,7 @@ class AntigenReceptorPDBParser(PDBParser):
             model.xtra['domains'] = dict( (d, []) for d in self.allowed_domains )
             model.xtra['firstpair']=None # Used for reference if outputting only the first receptor identified.
             for chain in model:
-                for di in xrange( len( chain.xtra.get('domains',[]) ) ):
+                for di in range( len( chain.xtra.get('domains',[]) ) ):
                     model.xtra['domains'][ chain.xtra['domains'][di] ].append( (chain, di) )
                     if not model.xtra['firstpair']: model.xtra['firstpair'] = [(chain, di)] # For single domain
                 chain.xtra['pairing'] = [None]*len( chain.xtra.get('domains',[]) )
@@ -434,7 +433,7 @@ def compile_remarks( chain, rtype, only_loaded=False ):
         r.append( 'CHAIN %s N_%s-V-DOMAINS %d'%( chain.id, rtype , len(chain.xtra.get('domains',[])) ) )
     
     # Create remark records about the chain types, pairings and germline assignments
-    for i in xrange( len( chain.xtra.get('domains',[]) ) ):
+    for i in range( len( chain.xtra.get('domains',[]) ) ):
         if only_loaded and i != int(chain.xtra.get('loaded','9')[-1]): continue
         deets = chain.xtra['anarci_details'][i]
         di = 'CHAIN %s DOMAIN %d '%( chain.id, i )
@@ -596,7 +595,7 @@ def pairwise_muscle(seq1, seq2,exact=True):
         seq2_ali = result[2]
         return "".join( seq1_ali.split("\n")[1:]), "".join( seq2_ali.split("\n")[1:])
     else:
-        print >> sys.stderr, "Problem parsing output from muscle: %s"%output[0]
+        print(f'Problem parsing output from muscle: {output[0]}', file = sys.stderr)
 
 def easy_alignment(seq1, seq2):
     """
@@ -823,7 +822,7 @@ def PdbSeqresIterator(handle):
         # ENH: 'SEQADV' 'MODRES'
 
     for chn_id, residues in sorted(chains.items()):
-        record = SeqRecord(Seq(''.join(residues), generic_protein))
+        record = SeqRecord(Seq(''.join(residues)))
         record.annotations = {"chain": chn_id}
         if chn_id in metadata:
             m = metadata[chn_id][0]
@@ -1031,7 +1030,7 @@ def annotate_regions(numbered_sequence, chain,numbering_scheme="chothia",definit
             # 1
             # Count the positions 31-34 inclusive. These become insertions on 35 in Kabat.
             ins = 0 
-            for i in xrange( 31, 35 ): 
+            for i in range( 31, 35 ):
                 if (i, " ") in numdict: 
                     if numdict[ (i, " ") ] != "-": ins +=1
             for a in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -1228,7 +1227,7 @@ if __name__ == '__main__':
         sparser = AntibodyPDBParser(QUIET=True, scheme=args.scheme, warnings=args.warnings)
     elif args.receptor == 'tr':
         if args.scheme not in ['imgt','i','aho','a']: 
-            print >> sys.stderr, 'Only imgt or aho schemes can be applied to tcrs'
+            print('Only imgt or aho schemes can be applied to tcrs', file=sys.stderr)
             sys.exit(1)
         sparser = TcrPDBParser(QUIET=True, scheme=args.scheme, warnings=args.warnings)
 
@@ -1236,10 +1235,10 @@ if __name__ == '__main__':
     try:        
         structure = sparser.get_structure(name, args.inputstructure)
     except IOError:
-        print >> sys.stderr, 'File %s could not be opened'%args.inputstructure
+        print(f'File {args.inputstructure} could not be opened', file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print >> sys.stderr, '%s could not be parsed:'%args.inputstructure, e
+        print(f'{args.inputstructure} could not be parsed:', e, file=sys.stderr)
         sys.exit(1)
 
     # Switch back to the numbering scheme of choice. 
@@ -1253,29 +1252,29 @@ if __name__ == '__main__':
             of = open(args.outfile,'w')
         else:
             of = sys.stdout
-        print >> of, 'REMARK   6 SCHEME %s'%args.scheme.upper()
-        print >> of, 'REMARK   6 ANARCI TYPE, PAIRING AND ASSIGNED GERMLINE DETAILS'
+        print(f'REMARK   6 SCHEME {args.scheme.upper()}', file=of)
+        print(f'REMARK   6 ANARCI TYPE, PAIRING AND ASSIGNED GERMLINE DETAILS', file=of)
         if args.splitscfv: split_scfv( structure )         
         if args.rename: rename_chains( structure )
         for chain in structure.get_chains():
-            print >> of,'REMARK   6 '+'\nREMARK   6 '.join(compile_remarks(chain, args.receptor.upper(), only_loaded=args.splitscfv))
+            print('REMARK   6 '+'\nREMARK   6 '.join(compile_remarks(chain, args.receptor.upper(), only_loaded=args.splitscfv)), file=of)
         for chain in structure.get_chains():
             sr = compile_seqres( chain )
             if sr:
-                print >> of, sr
+                print(sr, file=of)
         if args.fvonly:
-            structure.save(of,select=SelectFv())
+            structure.save(of, select=SelectFv())
         elif args.splitscfv:
-            structure.save(of,select=SelectFvScFv())
+            structure.save(of, select=SelectFvScFv())
         else:
             structure.save(of)
         if args.outfile:
             of.close()
     except IOError:
-        print >> sys.stderr, 'Could not write to file %s'%(args.outfile)
+        print(f'Could not write to file {args.outfile}',sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print >> sys.stderr, e
+        print(e, file=sys.stderr)
         sys.exit(1)
     sys.exit(0)
 

@@ -1,0 +1,16 @@
+name: haddock-antibody
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - anarci
+  - biopandas=0.2.4
+  - biopython=1.79
+  - coverage=6.2
+  - codecov=2.1.11
+  - hmmer=3.3.2
+  - pip=21.3.1
+  - pip:
+      - pdb-tools
