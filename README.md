@@ -1,6 +1,7 @@
 # HADDOCK-antibody-antigen
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![unittests](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml/badge.svg)](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/241584375.svg)](https://zenodo.org/badge/latestdoi/241584375)
 
 Here we provide the code to run the antibody protocol of **HADDOCK** by using the residues belonging to the _hypervariable_ (**HV**) loops.
