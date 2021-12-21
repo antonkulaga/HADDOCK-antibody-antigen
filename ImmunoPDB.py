@@ -85,7 +85,7 @@ from Bio.SeqUtils import seq1
 import subprocess
 import os
 import collections
-
+import sys
 
 # Globals
 tebahpla = 'ZYXWVUTSRQPONMLKJIHGFEDCBA '
@@ -1193,6 +1193,81 @@ class Accept:
         if get_region(position, chain, self.numbering_scheme, self.definition) in self.regions or position in self.positions[chain]:
             return 1
 
+
+def main(inputstructure: str = None,
+         outfile: str = None,
+         scheme: str = "imgt",
+         receptor: str = "ig",
+         rename: bool = False,
+         fvonly: bool = False,
+         splitscfv: bool = False,
+         warnings: bool = False):
+    # Work arounds for either returning pdb scheme or where I have not yet implemented the regions in the scheme.
+    # Assign the regions in imgt then renumber back in the chosen scheme
+    # This is slow for the second case (double numbering).
+    switchback=False
+    if scheme == 'pdb' or ((fvonly or splitscfv) and scheme in ['aho','wolfguy']):
+        switchback = scheme
+        scheme = 'imgt'
+
+    if scheme != 'pdb':
+        scheme = scheme_short_to_long[scheme.lower()]
+
+    if receptor == 'ig':
+        sparser = AntibodyPDBParser(QUIET=True, scheme=scheme, warnings=warnings)
+    elif receptor == 'tr':
+        if scheme not in ['imgt','i','aho','a']:
+            print('Only imgt or aho schemes can be applied to tcrs', file=sys.stderr)
+            sys.exit(1)
+        sparser = TcrPDBParser(QUIET=True, scheme=scheme, warnings=warnings)
+
+    name = os.path.splitext(os.path.split(inputstructure)[1])[0]
+    try:
+        structure = sparser.get_structure(name, inputstructure)
+    except IOError:
+        print(f'File {inputstructure} could not be opened', file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f'{inputstructure} could not be parsed:', e, file=sys.stderr)
+        sys.exit(1)
+
+    # Switch back to the numbering scheme of choice.
+    if switchback:
+        structure.switch_numbering_scheme(switchback)
+        scheme=switchback
+
+    # Output the structure according to the input options.
+    try:
+        if outfile:
+            of = open(outfile,'w')
+        else:
+            of = sys.stdout
+        print(f'REMARK   6 SCHEME {scheme.upper()}', file=of)
+        print(f'REMARK   6 ANARCI TYPE, PAIRING AND ASSIGNED GERMLINE DETAILS', file=of)
+        if splitscfv: split_scfv( structure )
+        if rename: rename_chains( structure )
+        for chain in structure.get_chains():
+            print('REMARK   6 '+'\nREMARK   6 '.join(compile_remarks(chain, receptor.upper(), only_loaded=splitscfv)), file=of)
+        for chain in structure.get_chains():
+            sr = compile_seqres( chain )
+            if sr:
+                print(sr, file=of)
+        if fvonly:
+            structure.save(of, select=SelectFv())
+        elif splitscfv:
+            structure.save(of, select=SelectFvScFv())
+        else:
+            structure.save(of)
+        if outfile:
+            of.close()
+    except IOError:
+        print(f'Could not write to file {outfile}',sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     import argparse
     import sys
@@ -1211,70 +1286,5 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
-
-    # Work arounds for either returning pdb scheme or where I have not yet implemented the regions in the scheme.
-    # Assign the regions in imgt then renumber back in the chosen scheme
-    # This is slow for the second case (double numbering).
-    switchback=False    
-    if args.scheme == 'pdb' or ((args.fvonly or args.splitscfv) and args.scheme in ['aho','wolfguy']): 
-        switchback = args.scheme
-        args.scheme = 'imgt'
-
-    if args.scheme != 'pdb':
-        args.scheme = scheme_short_to_long[args.scheme.lower()]
-
-    if args.receptor == 'ig':
-        sparser = AntibodyPDBParser(QUIET=True, scheme=args.scheme, warnings=args.warnings)
-    elif args.receptor == 'tr':
-        if args.scheme not in ['imgt','i','aho','a']: 
-            print('Only imgt or aho schemes can be applied to tcrs', file=sys.stderr)
-            sys.exit(1)
-        sparser = TcrPDBParser(QUIET=True, scheme=args.scheme, warnings=args.warnings)
-
-    name = os.path.splitext(os.path.split(args.inputstructure)[1])[0]
-    try:        
-        structure = sparser.get_structure(name, args.inputstructure)
-    except IOError:
-        print(f'File {args.inputstructure} could not be opened', file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f'{args.inputstructure} could not be parsed:', e, file=sys.stderr)
-        sys.exit(1)
-
-    # Switch back to the numbering scheme of choice. 
-    if switchback:
-        structure.switch_numbering_scheme(switchback)
-        args.scheme=switchback
-
-    # Output the structure according to the input options. 
-    try:
-        if args.outfile:
-            of = open(args.outfile,'w')
-        else:
-            of = sys.stdout
-        print(f'REMARK   6 SCHEME {args.scheme.upper()}', file=of)
-        print(f'REMARK   6 ANARCI TYPE, PAIRING AND ASSIGNED GERMLINE DETAILS', file=of)
-        if args.splitscfv: split_scfv( structure )         
-        if args.rename: rename_chains( structure )
-        for chain in structure.get_chains():
-            print('REMARK   6 '+'\nREMARK   6 '.join(compile_remarks(chain, args.receptor.upper(), only_loaded=args.splitscfv)), file=of)
-        for chain in structure.get_chains():
-            sr = compile_seqres( chain )
-            if sr:
-                print(sr, file=of)
-        if args.fvonly:
-            structure.save(of, select=SelectFv())
-        elif args.splitscfv:
-            structure.save(of, select=SelectFvScFv())
-        else:
-            structure.save(of)
-        if args.outfile:
-            of.close()
-    except IOError:
-        print(f'Could not write to file {args.outfile}',sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(e, file=sys.stderr)
-        sys.exit(1)
+    main(args.inputstructure, args.outfile, args.scheme, args.receptor, args.rename, args.fvonly, args.splitscfv, args.warnings)
     sys.exit(0)
-
