@@ -1,25 +1,27 @@
 # HADDOCK-antibody-antigen
-[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0) 
-[![Build Status](http://alembick.science.uu.nl:8080/buildStatus/icon?job=HADDOCK-antibody-antigen%2Fmaster&subject=Build%20duration:%20%24%7Bduration%7D)](http://alembick.science.uu.nl:8080/job/HADDOCK-antibody-antigen/) 
-[![codecov](https://codecov.io/gh/haddocking/HADDOCK-antibody-antigen/branch/master/graph/badge.svg)](https://codecov.io/gh/haddocking/HADDOCK-antibody-antigen)
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![unittests](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml/badge.svg)](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/241584375.svg)](https://zenodo.org/badge/latestdoi/241584375)
 
-Here we provide the code to run the antibody protocol of **HADDOCK** by using the residues belonging to the *hypervariable* (**HV**) loops.
-We use [ANARCI](http://opig.stats.ox.ac.uk/webapps/newsabdab/sabpred/anarci/) *[Dunbar, J. et al (2016). Nucleic Acids Res. 44. W474-W478]* to renumber the antibody according to the Chothia numbering scheme and to identify the HV loops.
+Here we provide the code to run the antibody protocol of **HADDOCK** by using the residues belonging to the _hypervariable_ (**HV**) loops.
+We use [ANARCI](http://opig.stats.ox.ac.uk/webapps/newsabdab/sabpred/anarci/) _[Dunbar, J. et al (2016). Nucleic Acids Res. 44. W474-W478]_ to renumber the antibody according to the Chothia numbering scheme and to identify the HV loops.
 
 ## Installation
+
 ### a. With Anaconda
+
 The easiest way is using [Anaconda](https://www.anaconda.com/distribution/):
 
-``` bash
+```bash
 git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
-cd HADDOCK-antibody-antigen 
+cd HADDOCK-antibody-antigen
 
 # Create conda enviroment with all the dependencies
-conda env create 
+conda env create
 
 # Install ANARCI
-conda activate Ab-HADDOCK 
+conda activate Ab-HADDOCK
 cd anarci-1.3
 python2.7 setup.py install
 cd ..
@@ -28,20 +30,25 @@ conda deactivate
 
 ### b. Without Anaconda
 
-1.  Clone the repository: 
-``` bash
+1.  Clone the repository:
+
+```bash
 git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
 ```
-2.  Download and install *python 2.7*: https://www.python.org/downloads/release/python-2713/
-3.  Download and install *HMM 3.3*: http://hmmer.org/
+
+2.  Download and install _python 2.7_: https://www.python.org/downloads/release/python-2713/
+3.  Download and install _HMM 3.3_: http://hmmer.org/
 4.  Install the required python packages:
-``` bash
-cd HADDOCK-antibody-antigen 
+
+```bash
+cd HADDOCK-antibody-antigen
 pip install -r requirements.txt
 cd ..
 ```
-5.  Install *ANARCI*:
-``` bash
+
+5.  Install _ANARCI_:
+
+```bash
 cd HADDOCK-antibody-antigen
 cd anarci-1.3
 python2.7 setup.py install
@@ -54,14 +61,14 @@ cd ..
 1.  [python 2.7](https://www.python.org/downloads/release/python-2713/)
 2.  [HMMER](http://hmmer.org/)
 3.  [Biopandas](http://rasbt.github.io/biopandas/)
-4.  [Biopython](https://biopython.org/) 
-5.  [pdb-tools](https://github.com/haddocking/pdb-tools)  
+4.  [Biopython](https://biopython.org/)
+5.  [pdb-tools](https://github.com/haddocking/pdb-tools)
 
-## Usage  
+## Usage
 
 ```bash
 cd HADDOCK-antibody-antigen
-conda activate Ab-HADDOCK  # [optional] to run only if you have used anaconda 
+conda activate Ab-HADDOCK  # [optional] to run only if you have used anaconda
 
 # Renumber antibody with the Chothia scheme
 python2.7 ImmunoPDB.py -i 4G6K.pdb -o 4G6K_ch.pdb --scheme c --fvonly --rename --splitscfv
@@ -74,5 +81,5 @@ python ab_haddock_format.py 4G6K_ch.pdb 4G6K-HADDOCK.pdb A > active.txt
 pdb_tidy 4G6K-HADDOCK.pdb > oo; mv oo 4G6K-HADDOCK.pdb
 
 # Deactivate anaconda
-conda deactivate  # [optional] to run only if you have used anaconda 
+conda deactivate  # [optional] to run only if you have used anaconda
 ```
