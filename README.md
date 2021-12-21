@@ -1,8 +1,7 @@
 # HADDOCK-antibody-antigen
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build Status](http://alembick.science.uu.nl:8080/buildStatus/icon?job=HADDOCK-antibody-antigen%2Fmaster&subject=Build%20duration:%20%24%7Bduration%7D)](http://alembick.science.uu.nl:8080/job/HADDOCK-antibody-antigen/)
-[![codecov](https://codecov.io/gh/haddocking/HADDOCK-antibody-antigen/branch/master/graph/badge.svg)](https://codecov.io/gh/haddocking/HADDOCK-antibody-antigen)
+[![unittests](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml/badge.svg)](https://github.com/haddocking/HADDOCK-antibody-antigen/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/241584375.svg)](https://zenodo.org/badge/latestdoi/241584375)
 
 Here we provide the code to run the antibody protocol of **HADDOCK** by using the residues belonging to the _hypervariable_ (**HV**) loops.
@@ -12,7 +11,7 @@ We use [ANARCI](http://opig.stats.ox.ac.uk/webapps/newsabdab/sabpred/anarci/) _[
 
 ### Conda
 
-The easiest way is using [Conda](https://docs.conda.io/en/latest/miniconda.html) or its faster alternative [micromamba](https://github.com/mamba-org/mamba) that uses same API.
+The easiest way is using [Conda](https://docs.conda.io/en/latest/miniconda.html).
 
 ```bash
 git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
