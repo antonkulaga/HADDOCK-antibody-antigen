@@ -64,3 +64,10 @@ conda activate haddock-antibody
 
 python cli.py --pdb 4G6K.pdb
 ```
+
+It is also possible to process a whole folder with pdb files as well as subfolders with only one command:
+```bash
+conda activate haddock-antibody
+
+python cli.py --pdb folder_with_pdbs
+```
