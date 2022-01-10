@@ -9,69 +9,43 @@ We use [ANARCI](http://opig.stats.ox.ac.uk/webapps/newsabdab/sabpred/anarci/) _[
 
 ## Installation
 
-### a. With Anaconda
+### Conda
 
-The easiest way is using [Anaconda](https://www.anaconda.com/distribution/):
+The easiest way is using [Conda](https://docs.conda.io/en/latest/miniconda.html).
 
 ```bash
 git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
 cd HADDOCK-antibody-antigen
 
-# Create conda enviroment with all the dependencies
-conda env create
-
-# Install ANARCI
-conda activate Ab-HADDOCK
-cd anarci-1.3
-python2.7 setup.py install
-cd ..
-conda deactivate
+# Create conda enviroment from environment.yaml file:
+conda env create -f environment.yaml
+conda activate haddock-antibody
 ```
 
-### b. Without Anaconda
+### Pip
 
-1.  Clone the repository:
+If you do not want to install Conda and want to install everything with pip you have to git clone ANARCI as it is not published at pip registry:
 
-```bash
-git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
 ```
-
-2.  Download and install _python 2.7_: https://www.python.org/downloads/release/python-2713/
-3.  Download and install _HMM 3.3_: http://hmmer.org/
-4.  Install the required python packages:
-
-```bash
 cd HADDOCK-antibody-antigen
 pip install -r requirements.txt
+git clone git@github.com:oxpig/ANARCI.git
+cd ANARCI
+python setup.py install
 cd ..
 ```
 
-5.  Install _ANARCI_:
-
-```bash
-cd HADDOCK-antibody-antigen
-cd anarci-1.3
-python2.7 setup.py install
-cd ..
-cd ..
-```
-
-## Requirements
-
-1.  [python 2.7](https://www.python.org/downloads/release/python-2713/)
-2.  [HMMER](http://hmmer.org/)
-3.  [Biopandas](http://rasbt.github.io/biopandas/)
-4.  [Biopython](https://biopython.org/)
-5.  [pdb-tools](https://github.com/haddocking/pdb-tools)
+If you are still using Python 2, please, consider using [older version](https://github.com/haddocking/HADDOCK-antibody-antigen/commit/65b4eff744ea69561c7495350692015fd86be687)
 
 ## Usage
 
+### As separate scripts
+
 ```bash
-cd HADDOCK-antibody-antigen
-conda activate Ab-HADDOCK  # [optional] to run only if you have used anaconda
+conda activate haddock-antibody
 
 # Renumber antibody with the Chothia scheme
-python2.7 ImmunoPDB.py -i 4G6K.pdb -o 4G6K_ch.pdb --scheme c --fvonly --rename --splitscfv
+python ImmunoPDB.py -i 4G6K.pdb -o 4G6K_ch.pdb --scheme c --fvonly --rename --splitscfv
 
 # Format the antibody in order to fit the HADDOCK format requirements
 # and extract the HV loop residues and save them into a file
@@ -79,7 +53,21 @@ python ab_haddock_format.py 4G6K_ch.pdb 4G6K-HADDOCK.pdb A > active.txt
 
 # Add END and TER statements to the .pdb file
 pdb_tidy 4G6K-HADDOCK.pdb > oo; mv oo 4G6K-HADDOCK.pdb
+```
 
-# Deactivate anaconda
-conda deactivate  # [optional] to run only if you have used anaconda
+### As one command
+
+For the convenience all three commands can be run as one with:
+
+```bash
+conda activate haddock-antibody
+
+python cli.py --pdb 4G6K.pdb
+```
+
+It is also possible to process a whole folder with pdb files as well as subfolders with only one command:
+```bash
+conda activate haddock-antibody
+
+python cli.py --pdb folder_with_pdbs
 ```

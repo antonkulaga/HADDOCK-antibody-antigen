@@ -27,6 +27,7 @@ import biopandas.pdb as bp
 import copy as cp
 import os
 import sys
+from pathlib import Path
 
 __author__ = "Francesco Ambrosetti"
 __email__ = "ambrosetti.francesco@gmail.com"
@@ -176,11 +177,7 @@ class AbHaddockFormat:
         return hv_list, new_pdb
 
 
-if __name__ == '__main__':
-
-    # Get inputs
-    pdb_file, out_file, chain_id = check_input()
-
+def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = None):
     # Renumber pdb file and get HV residues
     pdb_format = AbHaddockFormat(pdb_file, chain_id)
     hv_resno, pdb_ren = pdb_format.ab_format()
@@ -189,4 +186,13 @@ if __name__ == '__main__':
     pdb_ren.to_pdb(path=out_file, records=['ATOM'], append_newline=True)
 
     # Print HV residues
-    print(','.join(map(str, hv_resno)))
+    active_residues = ','.join(map(str, hv_resno))
+    print(active_residues)
+    if active_sites_file is not None:
+        Path(active_sites_file).write_text(active_residues)
+
+if __name__ == '__main__':
+
+    # Get inputs
+    pdb_file, out_file, chain_id = check_input()
+    main(pdb_file, out_file, chain_id)

@@ -7,3 +7,11 @@ __pycache__/
 #Files
 save-git-pass.sh
 *.pyc
+
+#Intellij Idea specific
+.idea
+.idea/*
+
+#predictions
+predictions/
+active.txt
