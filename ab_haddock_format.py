@@ -177,7 +177,7 @@ class AbHaddockFormat:
         return hv_list, new_pdb
 
 
-def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = None):
+def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = None) -> list:
     # Renumber pdb file and get HV residues
     pdb_format = AbHaddockFormat(pdb_file, chain_id)
     hv_resno, pdb_ren = pdb_format.ab_format()
@@ -190,6 +190,8 @@ def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = N
     print(active_residues)
     if active_sites_file is not None:
         Path(active_sites_file).write_text(active_residues)
+    return hv_resno
+
 
 if __name__ == '__main__':
 

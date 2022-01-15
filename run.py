@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import click
 import ImmunoPDB
 import ab_haddock_format
@@ -5,25 +7,15 @@ from pathlib import Path
 from pdbtools import pdb_tidy
 
 
-def tidy_up(file: Path, where: Path):
-    with file.open("r") as fh:
-        with where.open("a") as f:
-            new_pdb = pdb_tidy.run(fh, False)
-            n = 5000
-            try:
-                _buffer = []
-                _buffer_size = n
-                for lineno, line in enumerate(new_pdb):
-                    if not (lineno % _buffer_size):
-                        f.write(''.join(_buffer))
-                        _buffer = []
-                    _buffer.append(line)
-                f.write(''.join(_buffer))
-            except IOError:
-                pass
+def tidy_up(file: Path, where: Path) -> Path:
+    with where.open("w") as f:
+        new_pdb = pdb_tidy.run(file.open("r"), False)
+        for line in new_pdb:
+            f.write(line)
+    return where
 
 
-def process_pdb(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, rename: bool, splitscfv: bool, chain: str, delete_intermediate: bool):
+def process_pdb(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, rename: bool, splitscfv: bool, chain: str, delete_intermediate: bool) -> Path:
     output_path.mkdir(exist_ok=True)
     pdb_name = pdb_path.name
     # Format the antibody in order to fit the HADDOCK format requirements
@@ -32,21 +24,27 @@ def process_pdb(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, re
     ImmunoPDB.main(inputstructure=str(pdb_path), outfile=str(annotated_pdb), scheme=scheme, fvonly=fvonly, rename=rename, splitscfv=splitscfv)
     print(f"pdb annotated as {annotated_pdb}")
     haddock_pdb = (output_path / pdb_name.replace(".pdb", f"_HADDOCK.pdb")).resolve()
+    # file to save active sites
+    active_sites_file = output_path / pdb_name.replace(".pdb", f"_active.txt")
     ab_haddock_format.main(pdb_file=str(annotated_pdb),
                            out_file=str(haddock_pdb),
                            chain_id=chain,
-                           active_sites_file=str(output_path / pdb_name.replace(".pdb", f"_active_sites.txt")) #file to save active sites
+                           active_sites_file=str(active_sites_file)
                            )
-    print(f"pdb ported to haddock ofrmat as {haddock_pdb}")
+    print(f"pdb ported to haddock format and saved as {haddock_pdb}")
+    print(f"active residues saved as {active_sites_file}")
     tidy_pdb = (output_path / pdb_name.replace(".pdb", f"_HADDOCK_tidy.pdb")).resolve()
     tidy_up(haddock_pdb, tidy_pdb)
     if delete_intermediate:
         annotated_pdb.unlink(missing_ok=True)
         haddock_pdb.unlink(missing_ok=True)
+        print("intermediate files deleted")
+    print(f"final pdb saved as {tidy_pdb}")
+    return tidy_pdb
 
 
-def process_folder(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, rename: bool, splitscfv: bool, chain: str, delete_intermediate: bool):
-    print(f"{str(pdb_path)} is folder, processing all children folders and pdb files inside of it!")
+def process_folder(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, rename: bool, splitscfv: bool, chain: str, delete_intermediate: bool) -> Path:
+    print(f"{str(pdb_path)} is folder, processing all subfolders and pdb files inside of it!")
     for child in pdb_path.iterdir():
         output_subpath = output_path / child.name
         if child.is_dir() and not child.is_symlink() and any(child.iterdir()):
@@ -54,17 +52,18 @@ def process_folder(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool,
             process_folder(child, output_subpath, scheme, fvonly, rename, splitscfv, chain, delete_intermediate)
         elif child.is_file() and "pdb" in child.suffix:
             process_pdb(child, output_subpath, scheme, fvonly, rename, splitscfv, chain, delete_intermediate)
+    return output_path
 
 
 @click.command()
-@click.option('--pdb', help='pdb file or a folder with pdb files to run protocol at, for example 4G6K.pdb (file) or my_antibodies (folder)')
+@click.option('--pdb', type=click.Path(exists=True), help='pdb file or a folder with pdb files to run protocol at, for example 4G6K.pdb (file) or my_antibodies (folder)')
 @click.option('--output', default="output", help='output folder to store results')
 @click.option('--scheme', default="c", help="numbering scheme")
 @click.option('--fvonly', default=True, help="use only fv region")
 @click.option('--rename', default=True, help="renaming")
 @click.option('--splitscfv', default=True, help="splitscfv")
 @click.option('--chain', default="A", help="chain to extract active regions from")
-@click.option('--delete_intermediate', default=True, help="Delete intermediate files")
+@click.option('--delete_intermediate', default=False, help="Delete intermediate files")
 def cli(pdb: str, output: str, scheme: str, fvonly: bool, rename: bool, splitscfv: bool, chain: str, delete_intermediate: bool):
     output_path = Path(output).resolve()
     output_path.mkdir(exist_ok=True)

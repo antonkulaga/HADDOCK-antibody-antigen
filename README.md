@@ -17,7 +17,7 @@ The easiest way is using [Conda](https://docs.conda.io/en/latest/miniconda.html)
 git clone https://github.com/haddocking/HADDOCK-antibody-antigen.git
 cd HADDOCK-antibody-antigen
 
-# Create conda enviroment from environment.yaml file:
+# Create conda environment from environment.yaml file:
 conda env create -f environment.yaml
 conda activate haddock-antibody
 ```
@@ -57,17 +57,18 @@ pdb_tidy 4G6K-HADDOCK.pdb > oo; mv oo 4G6K-HADDOCK.pdb
 
 ### As one command
 
-For the convenience all three commands can be run as one with:
+For the convenience all three commands can be run as one command with:
 
 ```bash
 conda activate haddock-antibody
 
-python cli.py --pdb 4G6K.pdb
+python run.py --pdb 4G6K.pdb
 ```
 
 It is also possible to process a whole folder with pdb files as well as subfolders with only one command:
+
 ```bash
 conda activate haddock-antibody
 
-python cli.py --pdb folder_with_pdbs
+python run.py --pdb folder_with_pdbs
 ```
