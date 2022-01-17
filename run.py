@@ -7,9 +7,9 @@ from pathlib import Path
 from pdbtools import pdb_tidy
 
 
-def tidy_up(file: Path, where: Path) -> Path:
+def tidy_up(file: Path, where: Path, strict: bool = True) -> Path:
     with where.open("w") as f:
-        new_pdb = pdb_tidy.run(file.open("r"), False)
+        new_pdb = pdb_tidy.run(file.open("r"), strict)
         for line in new_pdb:
             f.write(line)
     return where
@@ -34,7 +34,7 @@ def process_pdb(pdb_path: Path, output_path: Path, scheme: str, fvonly: bool, re
     print(f"pdb ported to haddock format and saved as {haddock_pdb}")
     print(f"active residues saved as {active_sites_file}")
     tidy_pdb = (output_path / pdb_name.replace(".pdb", f"_HADDOCK_tidy.pdb")).resolve()
-    tidy_up(haddock_pdb, tidy_pdb)
+    tidy_up(haddock_pdb, tidy_pdb, True)
     if delete_intermediate:
         annotated_pdb.unlink(missing_ok=True)
         haddock_pdb.unlink(missing_ok=True)
