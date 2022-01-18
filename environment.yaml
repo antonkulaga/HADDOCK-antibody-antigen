@@ -14,8 +14,8 @@ dependencies:
   - codecov=2.1.11
   - hmmer=3.3.2
   - pip=21.3.1
+  - pytest=6.2.5
   - click=8.0.3
   - pip:
       - pdb-tools==2.4.1
-      - freesasa==2.1.0
       - pyfunctional==1.4.3
