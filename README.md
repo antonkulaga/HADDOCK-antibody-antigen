@@ -23,19 +23,17 @@ conda activate haddock-antibody
 ```
 
 ### Pip
-
-If you do not want to install Conda and want to install everything with pip you have to git clone ANARCI as it is not published at pip registry:
-
+1. Install dependencies and ANARCI
 ```
 cd HADDOCK-antibody-antigen
 pip install -r requirements.txt
-git clone git@github.com:oxpig/ANARCI.git
+git clone https://github.com/oxpig/ANARCI.git
 cd ANARCI
 python setup.py install
 cd ..
 ```
-
-If you are still using Python 2, please, consider using [older version](https://github.com/haddocking/HADDOCK-antibody-antigen/commit/65b4eff744ea69561c7495350692015fd86be687)
+2. Install 
+If you are still using Python 2, please, consider using [older version](https://github.com/haddocking/HADDOCK-antibody-antigen/releases/tag/2020-first-release)
 
 ## Usage
 
