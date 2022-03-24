@@ -87,7 +87,7 @@ class AbHaddockFormat:
           '100H_H', '100I_H', '100J_H', '100K_H', '101_H']
     loops_h = h1 + h2 + h3
 
-    def __init__(self, pdbfile, chain):
+    def __init__(self, pdbfile, chain, heavy_only: bool = False):
         """
         Constructor for the AbHaddockFormat class
         Args:
@@ -97,6 +97,7 @@ class AbHaddockFormat:
         self.file = pdbfile
         self.pdb = bp.PandasPdb().read_pdb(self.file)
         self.chain = chain
+        self.heavy_only= heavy_only
 
     def check_chain(self):
         """
@@ -111,7 +112,7 @@ class AbHaddockFormat:
             sys.stderr.write(emsg)
             sys.exit(1)
 
-        elif 'L' not in chain_ids:
+        elif 'L' not in chain_ids and not self.heavy_only:
             emsg = 'ERROR!! File {0} does not contain the light chain\n'.format(self.file)
             sys.stderr.write(emsg)
             sys.exit(1)
@@ -168,18 +169,19 @@ class AbHaddockFormat:
             if hv_heavy in resno_dict.keys():
                 hv_list.append(resno_dict[hv_heavy])
          
-        # Light chain
-        for hv_light in self.loops_l:
-            if hv_light in resno_dict.keys():
-                hv_list.append(resno_dict[hv_light])
+        if not self.heavy_only:
+            # Light chain
+            for hv_light in self.loops_l:
+                if hv_light in resno_dict.keys():
+                    hv_list.append(resno_dict[hv_light])
 
         hv_list.sort()
         return hv_list, new_pdb
 
 
-def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = None) -> list:
+def main(pdb_file: str, out_file: str, chain_id: str, active_sites_file: str = None, heavy_only: bool = False) -> list:
     # Renumber pdb file and get HV residues
-    pdb_format = AbHaddockFormat(pdb_file, chain_id)
+    pdb_format = AbHaddockFormat(pdb_file, chain_id, heavy_only)
     hv_resno, pdb_ren = pdb_format.ab_format()
 
     # Write pdb into a file
