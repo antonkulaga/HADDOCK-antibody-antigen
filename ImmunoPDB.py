@@ -14,6 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from Bio.PDB import Entity, Chain, Residue
 
 description='''
 
@@ -221,7 +222,7 @@ class AntigenReceptorPDBParser(PDBParser):
                  structure_builder=None,
                   QUIET=False, scheme='imgt',
                   region_definition='imgt',
-                  warnings=False, heavyChain=False):
+                  warnings=False, heavy_only=False):
         '''
         '''
         super( AntigenReceptorPDBParser, self ).__init__(PERMISSIVE=PERMISSIVE, get_header=get_header,
@@ -336,7 +337,7 @@ class AntigenReceptorPDBParser(PDBParser):
 
 class TcrPDBParser(AntigenReceptorPDBParser):
     allowed_schemes = ['imgt','i','aho','a']
-    allowed_domains  = set(['A','B','G','D'])
+    allowed_domains  = {'A', 'B', 'G', 'D'}
     allowed_pairs = [ ('B','A'),('D','G') ] 
     annotates = 'tcr'
 
@@ -549,7 +550,7 @@ def convert_3_to_1(r):
     if is_aa( r, standard=False ):
         a = protein_letters_3to1.get( r, '' )
         if len( a ) == 3: # Where there are multiple codes used. 
-            return self.convert_3_to_1(a)
+            return convert_3_to_1(a)
         return a
     return ''
 

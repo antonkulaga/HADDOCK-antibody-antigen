@@ -73,6 +73,7 @@ def cli(pdb: str, output: str, scheme: str, fvonly: bool, heavy_only: bool, rena
     if pdb_path.is_dir():
         process_folder(pdb_path, output_path, scheme, fvonly, heavy_only, rename, splitscfv, chain, delete_intermediate)
     else:
+
         process_pdb(pdb_path, output_path, scheme, fvonly, heavy_only, rename, splitscfv, chain, delete_intermediate)
 
 
