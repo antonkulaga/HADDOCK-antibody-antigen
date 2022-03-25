@@ -206,6 +206,7 @@ class PDBNumber(object):
             numbering = [ (n, a) for n, a in numbered[i][0] if a != '-' ] # Remove gaps if made (imgt scheme)
             yield [ (numbering[ri][0], ri+numbered[i][1]) for ri in range( len( numbering ) ) ], details[i]['chain_type'], details[i]
 
+
 # Extension of the Biopython PDBParser. 
 class AntigenReceptorPDBParser(PDBParser):
     '''
@@ -217,7 +218,10 @@ class AntigenReceptorPDBParser(PDBParser):
     annotates = 'antigen receptor'        
     
     def __init__( self, PERMISSIVE=True, get_header=False,
-                 structure_builder=None, QUIET=False, scheme='imgt', region_definition='imgt', warnings=False):
+                 structure_builder=None,
+                  QUIET=False, scheme='imgt',
+                  region_definition='imgt',
+                  warnings=False, heavyChain=False):
         '''
         '''
         super( AntigenReceptorPDBParser, self ).__init__(PERMISSIVE=PERMISSIVE, get_header=get_header,
@@ -1125,10 +1129,11 @@ class Accept:
     A class to select which positions should be compared.
     """
     _defined_regions = ["fwh1", "fwh2", "fwh3", "fwh4", "fwl1", "fwl2", "fwl3", "fwl4", "cdrh1", "cdrh2", "cdrh3", "cdrl1", "cdrl2", "cdrl3"]
-    _macro_regions= { "hframework":set(["fwh1", "fwh2", "fwh3", "fwh4"]),
-                      "hcdrs"     :set(["cdrh1", "cdrh2", "cdrh3"]),
-                      "lframework":set(["fwl1", "fwl2", "fwl3", "fwl4"]),    
-                      "lcdrs"     :set(["cdrl1", "cdrl2", "cdrl3"]) }
+    _macro_regions= { "hframework": {"fwh1", "fwh2", "fwh3", "fwh4"},
+                      "hcdrs"     : {"cdrh1", "cdrh2", "cdrh3"},
+                      "lframework": {"fwl1", "fwl2", "fwl3", "fwl4"},
+                      "lcdrs"     : {"cdrl1", "cdrl2", "cdrl3"}}
+
     _macro_regions.update( { "framework": _macro_regions["hframework"] | _macro_regions["lframework"],
                              "cdrs": _macro_regions["hcdrs"] | _macro_regions["lcdrs"],
                              "vh": _macro_regions["hcdrs"] | _macro_regions["hframework"],
